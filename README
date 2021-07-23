@@ -1,0 +1,39 @@
+#设计介绍
+##1 core 核心
+###1.1 container 容器
+本设计中，每一个容器都可以启动。
+容器负责管理，本地调用的package和远程调用的package。
+以后会有扩展设计，容器需要独立管理中间件
+##1.2 ioc
+这里借助spring的设计来将容器调用的package注入到beanFactory中
+##2 bridge 桥接
+此模块中只有接口。
+跨_container容器_不会在maven中相互依赖。容器相互调用都是在beanFactory中找到实现，来进行的。
+在本例中，service-a调用service-b都是通过bridge的接口。
+##3 service-starter
+这是一个特殊的_container容器_，会依赖所有的容器。如果希望是一个单机项目，则直接启动此容器
+##4 container.json
+参考 ContainerConfig.class
+如果资源目录下没有这个文件，则认为该服务是一个独立的服务，即不依赖任何其他模块，也没有远程调用
+
+#其他事项
+###1.由于在启动类上加了@ComponentScan,覆盖了@SpringBootApplication中的ComponentScan。所以在AbstractContainer的构造器中，加入了当前容器的package到容器所管理的basePackage中
+###2.本例只有两个服务，所以starter显得没有作用，但是有多个服务的时候，它可以打包任意服务作为单机节点
+###3.本例以eureka和feign举例，可以根据自己的实际需求，选择自己需要的中间件(本例扫描FeignClient的代码是直接copy的源码)
+###4.eureka是个流氓，配置类没有加开关，其实设计里很简单的就能实现，判断有没有CloudContainer(看AbstractContainer的代码)，来决定是否开启服务注册发现。时间仓促，没有办(动)法(力)实现支持eureka自动开关。
+大家有兴趣可以自己实现了，然后来教我。
+
+#demo演示
+
+1.单机版：需要把 service-starter中的container.json中b的model改为local。
+启动ServiceStarterApplication.class就可以了。如果忍受不了eureka的报错，可以启动EurekaApplication.class.
+
+2.微服务版:
+需要把 service-starter中的container.json中b的model改为cloud。
+1.启动EurekaApplication.class
+2.启动BApplication.class
+3.启动ServiceStarterApplication.class
+
+访问：http://localhost:8080/a/index 就可以看到效果
+
+

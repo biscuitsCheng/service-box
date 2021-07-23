@@ -1,0 +1,13 @@
+[
+  {
+    "name": "a",
+    "containerClass": "com.biscuits.a.A",
+    "model": "local"
+  },
+  {
+    "name": "b",
+    "containerClass": "com.biscuits.b.B",
+    "openFeignPackage": "com.biscuits.bridge.b.*.feign",
+    "model": "cloud"
+  }
+]
